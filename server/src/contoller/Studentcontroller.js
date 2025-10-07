@@ -1,0 +1,96 @@
+import Student from "../models/Student.js";
+
+
+
+const generateRollNumber = async () => {
+  const lastStudent = await Student.findOne().sort({ createdAt: -1 });
+  let newNumber = 1;
+
+  if (lastStudent && lastStudent.rollNumber) {
+    const lastNum = parseInt(lastStudent.rollNumber.split("-")[1]);
+    if (!isNaN(lastNum)) newNumber = lastNum + 1;
+  }
+
+  return `STU-${String(newNumber).padStart(3, "0")}`;
+};
+// Create a new student
+export const createStudent = async (req, res) => {
+  try {
+       const { email } = req.body;
+    const existingStudent = await Student.findOne({ email });
+    if (existingStudent) {
+      return res.status(400).json({
+        success: false,
+        message: "A student with this email already exists",
+      });
+    }
+
+    const rollNumber = await generateRollNumber();
+    const student = await Student.create({ ...req.body, rollNumber });
+    res.status(201).json({ success: true, message: "Student created successfully", data: student });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Get all students with pagination
+export const getAllStudents = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalStudents = await Student.countDocuments();
+    const students = await Student.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: students,
+      pagination: {
+        total: totalStudents,
+        page,
+        limit,
+        totalPages: Math.ceil(totalStudents / limit),
+        hasNextPage: page * limit < totalStudents,
+        hasPrevPage: page > 1
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get a single student by ID
+export const getStudentById = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+    res.status(200).json({ success: true, data: student });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update a student
+export const updateStudent = async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+    res.status(200).json({ success: true, message: "Student updated successfully", data: student });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteStudent = async (req, res) => {
+  try {
+    const student = await Student.findByIdAndDelete(req.params.id);
+    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
+    res.status(200).json({ success: true, message: "Student deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
