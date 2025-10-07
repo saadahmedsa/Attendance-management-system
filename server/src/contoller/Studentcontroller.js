@@ -1,4 +1,5 @@
 import Student from "../models/Student.js";
+import Class from "../models/Class.js";
 
 
 
@@ -14,24 +15,46 @@ const generateRollNumber = async () => {
   return `STU-${String(newNumber).padStart(3, "0")}`;
 };
 // Create a new student
+
+
 export const createStudent = async (req, res) => {
   try {
-       const { email } = req.body;
-    const existingStudent = await Student.findOne({ email });
-    if (existingStudent) {
-      return res.status(400).json({
-        success: false,
-        message: "A student with this email already exists",
-      });
+          const { email, className } = req.body;
+          
+          console.log(email);
+          console.log(className);
+          
+    
+    if (email) {
+      const existing = await Student.findOne({ email });
+      if (existing) {
+        return res.status(400).json({ success: false, message: "Email already registered" });
+      }
     }
-
+    let classDoc = await Class.findOne({ className });
+    if (!classDoc) {
+      classDoc = await Class.create({ className });
+    }
     const rollNumber = await generateRollNumber();
-    const student = await Student.create({ ...req.body, rollNumber });
-    res.status(201).json({ success: true, message: "Student created successfully", data: student });
+    const image = req.file ? req.file.path : "";
+    const student = await Student.create({
+      ...req.body,
+      rollNumber,
+      class: classDoc._id,
+      image,
+    });
+    await Class.findByIdAndUpdate(classDoc._id, { $push: { students: student._id } });
+
+    res.status(201).json({
+      success: true,
+      message: "Student created successfully",
+      data: student,
+    });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
 
 // Get all students with pagination
 export const getAllStudents = async (req, res) => {

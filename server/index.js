@@ -11,18 +11,20 @@ import Student from "./src/routes/Studentroute.js";
 
 const app = express();
 
-app.use(cors({
-  origin: "http://localhost:3000", 
-  credentials: true,              
-}));
-app.use(cookieParser());
+app.use(cors());
+
+// 👇 These must come BEFORE your routes
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.send("Hello ams app !");
 });
 app.use("/api", user);
 app.use("/api", Student);
+
+
 
 connectDB()
   .then(() => {
