@@ -5,6 +5,7 @@ import cors from "cors"
 import connectDB from "./src/db/index.js";
 import cookieParser from "cookie-parser";
 import user from "./src/routes/userroute.js";
+import Student from "./src/routes/Studentroute.js";
 
 
 
@@ -21,6 +22,7 @@ app.get("/", (req, res) => {
   res.send("Hello ams app !");
 });
 app.use("/api", user);
+app.use("/api", Student);
 
 connectDB()
   .then(() => {

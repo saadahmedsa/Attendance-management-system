@@ -57,6 +57,6 @@ StudentSchema.index({ rollNumber: 1 });
 StudentSchema.index({ email: 1 });
 StudentSchema.index({ class: 1, section: 1 });
 
-const Student = model('Student', StudentSchema);
+const Student = mongoose.model('Student', StudentSchema);
 
 export default Student;
