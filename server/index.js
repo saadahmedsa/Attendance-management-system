@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import user from "./src/routes/userroute.js";
 import Student from "./src/routes/Studentroute.js";
 import classroute from "./src/routes/Classroute.js";
+import teacherouter from "./src/routes/Teacherroute.js";
 
 
 
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 app.use("/api", user);
 app.use("/api", Student);
 app.use("/api", classroute);
+app.use("/api", teacherouter);
 
 
 
