@@ -8,6 +8,7 @@ import user from "./src/routes/userroute.js";
 import Student from "./src/routes/Studentroute.js";
 import classroute from "./src/routes/Classroute.js";
 import teacherouter from "./src/routes/Teacherroute.js";
+import attendance from "./src/routes/Attendanceroute.js";
 
 
 
@@ -32,6 +33,7 @@ app.use("/api", user);
 app.use("/api", Student);
 app.use("/api", classroute);
 app.use("/api", teacherouter);
+app.use("/api", attendance);
 
 
 

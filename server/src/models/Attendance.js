@@ -15,7 +15,7 @@ const attendanceSchema = new mongoose.Schema({
         enum: ["Present", "Absent", "Late"],
         default: "Present"
     },
-    remarks: { type: String },
+    
 });
 
 attendanceSchema.index({ student: 1, date: 1 }, { unique: true });
