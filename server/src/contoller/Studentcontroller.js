@@ -54,32 +54,43 @@ export const createStudent = async (req, res) => {
 
 // Get all students with pagination
 export const getAllStudents = async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const { className } = req.query;
 
-        const totalStudents = await Student.countDocuments();
-        const students = await Student.find()
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        res.status(200).json({
-            success: true,
-            data: students,
-            pagination: {
-                total: totalStudents,
-                page,
-                limit,
-                totalPages: Math.ceil(totalStudents / limit),
-                hasNextPage: page * limit < totalStudents,
-                hasPrevPage: page > 1
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+    // 🧠 Build filter
+    const filter = {};
+    if (className) {
+      filter.class = className; // Exact match
     }
+
+    // 🧮 Count total
+    const totalStudents = await Student.countDocuments(filter);
+
+    // 📦 Fetch students
+    const students = await Student.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // 📤 Response
+    res.status(200).json({
+      success: true,
+      data: students,
+      pagination: {
+        total: totalStudents,
+        page,
+        limit,
+        totalPages: Math.ceil(totalStudents / limit),
+        hasNextPage: page * limit < totalStudents,
+        hasPrevPage: page > 1,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 // Get a single student by ID
