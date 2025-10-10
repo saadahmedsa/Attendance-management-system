@@ -67,34 +67,44 @@ export const importResults = async (req, res) => {
 
 
 
-// 🟢 Create Result
+
 export const createResult = async (req, res) => {
   try {
-    const { studentId, classId, examName, subjects, remarks } = req.body;
-
-    const student = await Student.findById(studentId);
-    if (!student) return res.status(404).json({ success: false, message: "Student not found" });
-
+    const { rollNumber, examName, subjects, remarks } = req.body;
+    const student = await Student.findOne( {rollNumber} );
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+    const classObj = await Class.findOne({ className: student.class });
+    if (!classObj) {
+      return res.status(404).json({ success: false, message: "Class not found" });
+    }
     const result = await Result.create({
-      student: studentId,
-      class: classId,
+      student: student._id,
+      className: student._id
+      ,
       examName,
       subjects,
       remarks,
     });
 
-    res.status(201).json({ success: true, message: "Result added successfully", data: result });
+    res.status(201).json({
+      success: true,
+      message: "Result added successfully",
+      data: result,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // 🟡 Get All Results
 export const getAllResults = async (req, res) => {
   try {
     const results = await Result.find()
       .populate("student", "name rollNumber class")
-      .populate("class", "className section");
+      .populate("className", "className section");
 
     res.json({ success: true, count: results.length, data: results });
   } catch (error) {
@@ -110,7 +120,7 @@ export const getResultByRollNo = async (req, res) => {
     if (!student) return res.status(404).json({ success: false, message: "Student not found" });
 
     const results = await Result.find({ student: student._id })
-      .populate("class", "className section");
+      .populate("className", "className section");
 
     res.json({ success: true, data: results });
   } catch (error) {

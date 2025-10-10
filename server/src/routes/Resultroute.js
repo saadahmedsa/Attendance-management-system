@@ -16,8 +16,8 @@ const upload = multer({ dest: "uploads/" });
 router.post("/import", upload.single("file"), importResults);
 router.post("/addresult", createResult);
 router.get("/Allresult", getAllResults);
-router.get("/:rollNumber", getResultByRollNo);
-router.put("/:id", updateResult);
-router.delete("/:id", deleteResult);
+router.get("/result/:rollNumber", getResultByRollNo);
+router.put("/updateresult/:id", updateResult);
+router.delete("/deleteresult/:id", deleteResult);
 
 export default router;
