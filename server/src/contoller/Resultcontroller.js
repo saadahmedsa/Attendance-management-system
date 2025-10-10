@@ -18,8 +18,6 @@ export const importResults = async (req, res) => {
 
     for (const row of rows) {
       const { rollNo, className, examName, Remarks, ...subjectsData } = row;
-
-      // 1️⃣ Find Student and Class
       const student = await Student.findOne({ rollNo });
       const classObj = await Class.findOne({ className });
 
@@ -28,12 +26,11 @@ export const importResults = async (req, res) => {
         continue;
       }
 
-      // 2️⃣ Extract subjects dynamically
       const subjects = Object.entries(subjectsData)
         .filter(([key]) => key.toLowerCase() !== "remarks")
         .map(([subjectName, obtainedMarks]) => ({
           subjectName,
-          totalMarks: 100, // default; or add a "TotalMarks" column in Excel
+          totalMarks: 100, 
           obtainedMarks: Number(obtainedMarks) || 0,
         }));
 
